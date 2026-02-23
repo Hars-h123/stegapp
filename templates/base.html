@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>StegApp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+
+  <body id="main-body" class="min-h-screen">
+    <!-- Navbar -->
+      <nav id="navbar" class="flex justify-between items-center p-4 shadow-md">
+      <a href="/" class="text-xl font-bold hover:opacity-80 transition">
+        StegApp 🔐
+      </a>
+
+      <!-- Theme Toggle -->
+      <button onclick="toggleTheme()" class="px-4 py-2 rounded-lg border">
+        Switch Theme
+      </button>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="main-container">
+      <div class="card w-full max-w-3xl mx-auto p-10">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+
+    <!-- Global Toast -->
+    <div id="toast"
+     style="
+        position: fixed;
+        top: 80px;
+        right: 16px;
+        z-index: 9999;
+        background: rgba(79, 70, 229, 0.95);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        font-weight: 500;
+     "
+     class="hidden">
+</div>
+
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  </body>
+</html>

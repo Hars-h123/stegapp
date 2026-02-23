@@ -1,0 +1,20 @@
+{% extends "base.html" %} {% block content %}
+<div class="text-center">
+  <h2 class="text-4xl font-bold mb-6">
+    Secure Image <br />
+    Steganography System
+  </h2>
+
+  <p class="mb-8">Hide encrypted messages inside images securely.</p>
+
+  <div class="space-x-4">
+    <a href="/encode" class="px-6 py-3 bg-blue-600 text-white rounded-lg">
+      Encode Message
+    </a>
+
+    <a href="/decode" class="px-6 py-3 bg-green-600 text-white rounded-lg">
+      Decode Message
+    </a>
+  </div>
+</div>
+{% endblock %}
