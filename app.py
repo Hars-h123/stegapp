@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, send_file
 import os
 from utils.crypto_utils import encrypt_message, decrypt_message
 from utils.stego import encode_image, decode_image
+import time 
 
 app = Flask(__name__)
 
@@ -51,10 +52,12 @@ def encode_action():
         image_path = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(image_path)
 
-    output_path = os.path.join(UPLOAD_FOLDER, "stego_output.png")
+    timestamp = str(int(time.time()))
+    filename = f"stego_{timestamp}.png"
+    output_path = os.path.join(UPLOAD_FOLDER, filename)
     encode_image(image_path, encrypted_data, output_path)
 
-    return send_file(output_path, as_attachment=True)
+    return send_file(output_path, as_attachment=True, download_name=filename)
 
 
 @app.route('/decode_action', methods=['POST'])
@@ -73,8 +76,8 @@ def decode_action():
         encrypted_data = decode_image(path)
         message = decrypt_message(encrypted_data, password)
         return message
-    except:
-        return "Wrong password or corrupted image", 400
+    except Exception:
+        return "ERROR: Wrong password or corrupted image.", 400
 
 
 if __name__ == '__main__':

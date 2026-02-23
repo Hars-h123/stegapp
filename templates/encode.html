@@ -144,6 +144,30 @@ document.addEventListener("DOMContentLoaded", function () {
   const spinner = document.getElementById("overlay-spinner");
   const btn = document.getElementById("encode-btn");
 
+  // Drag & Drop for Encode Upload
+const dropArea = document.querySelector("#upload-section .border-dashed");
+const fileInput = document.getElementById("imageInput");
+
+if (dropArea && fileInput) {
+
+  dropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropArea.classList.add("bg-indigo-100");
+  });
+
+  dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("bg-indigo-100");
+  });
+
+  dropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropArea.classList.remove("bg-indigo-100");
+
+    fileInput.files = e.dataTransfer.files;
+    showFileName(fileInput);
+  });
+}
+
   // Toggle image sections
   radios.forEach(radio => {
     radio.addEventListener("change", function () {
