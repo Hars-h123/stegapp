@@ -57,7 +57,12 @@ def encode_action():
     output_path = os.path.join(UPLOAD_FOLDER, filename)
     encode_image(image_path, encrypted_data, output_path)
 
-    return send_file(output_path, as_attachment=True, download_name=filename)
+    return send_file(
+        output_path,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="image/png"
+    )
 
 
 @app.route('/decode_action', methods=['POST'])
@@ -81,4 +86,4 @@ def decode_action():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

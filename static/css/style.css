@@ -25,20 +25,6 @@ body.cyber {
     color: #00ffcc;
 }
 
-/* Center main content */
-.main-container {
-    min-height: 85vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Card style */
-.card {
-    padding: 40px;
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-}
 
 /* SaaS card look */
 body.saas .card {
