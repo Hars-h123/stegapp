@@ -6,6 +6,17 @@
     <title>StegApp</title>
 
     <!-- Tailwind CDN -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Helvetica Neue"', "Helvetica", "Arial", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Global Custom CSS -->
@@ -32,18 +43,20 @@
 
   <!-- Clean Light Background -->
   <body class="min-h-screen bg-gray-50 text-gray-900">
-
     <!-- ========================= -->
     <!-- Navbar -->
     <!-- ========================= -->
     <nav class="bg-white shadow-sm">
-      <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-
+      <div
+        class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center"
+      >
         <!-- Logo -->
-        <a href="/" class="text-xl font-bold text-indigo-600 hover:opacity-80 transition">
+        <a
+          href="/"
+          class="text-xl font-bold text-indigo-600 hover:opacity-80 transition"
+        >
           StegApp 🔐
         </a>
-
       </div>
     </nav>
 
@@ -59,11 +72,7 @@
     <!-- ========================= -->
     <div
       id="toast"
-      class="hidden fixed top-20 right-4 z-50
-             bg-indigo-600 text-white
-             px-6 py-3 rounded-xl shadow-lg"
-    >
-    </div>
-
+      class="hidden fixed top-20 right-4 z-50 bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg"
+    ></div>
   </body>
 </html>
