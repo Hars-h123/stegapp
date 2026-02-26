@@ -1,74 +1,134 @@
-{% extends "base.html" %} 
-<div class="max-w-3xl mx-auto bg-white rounded-2xl shadowxl p-10"></div>
+{% extends "base.html" %}
 {% block content %}
 
-<!-- Back Link -->
-<div class="mb-6">
-  <a
-    href="/"
-    class="text-sm font-medium opacity-70 hover:opacity-100 transition"
-  >
-    ← Back
-  </a>
+<!-- ============================= -->
+<!-- Main Card Wrapper (Centered) -->
+<!-- ============================= -->
+<div class="max-w-3xl mx-auto w-full">
+
+  <!-- White Card Container -->
+  <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+
+    <!-- Back Navigation -->
+    <div class="mb-6">
+      <a href="/" class="text-sm font-medium opacity-70 hover:opacity-100 transition">
+        ← Back
+      </a>
+    </div>
+
+    <!-- Page Title -->
+    <h2 class="text-3xl font-bold mb-10 text-center">
+      Decode Hidden Message
+    </h2>
+
+    <!-- ============================= -->
+    <!-- Decode Form -->
+    <!-- ============================= -->
+    <form
+      id="decode-form"
+      method="POST"
+      action="/decode_action"
+      enctype="multipart/form-data"
+      class="space-y-8"
+    >
+
+      <!-- ============================= -->
+      <!-- Image Upload Section -->
+      <!-- ============================= -->
+      <div>
+        <label class="block font-semibold mb-3">
+          Upload Stego Image
+        </label>
+
+        <!-- Clickable Drop Area -->
+        <div
+          id="drop-area"
+          class="border-2 border-dashed border-indigo-400 rounded-xl p-8 text-center cursor-pointer hover:bg-indigo-50 transition"
+        >
+          <!-- Hidden File Input -->
+          <input
+            type="file"
+            id="decodeImage"
+            name="image"
+            accept="image/png, image/jpeg"
+            class="hidden"
+          />
+
+          <p class="text-gray-600">
+            Drag & Drop your image here
+          </p>
+
+          <p class="text-sm text-gray-400 mt-2">
+            or click to browse files
+          </p>
+
+          <!-- Selected file name appears here -->
+          <p id="file-name" class="mt-3 text-sm text-indigo-600 font-medium"></p>
+        </div>
+      </div>
+
+      <!-- ============================= -->
+      <!-- Password Section -->
+      <!-- ============================= -->
+      <div>
+
+        <label class="block font-semibold mb-2">
+          Enter Decryption Password
+        </label>
+
+        <!-- Password Input + Toggle Button -->
+        <div class="relative">
+
+          <input
+            type="password"
+            name="password"
+            id="decode-password"
+            required
+            class="w-full border rounded-lg p-3 pr-12 focus:ring-2 focus:ring-indigo-400 outline-none"
+          />
+
+          <!-- Show / Hide Password Button -->
+          <button
+            type="button"
+            id="toggle-password-btn"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
+          >
+            Show
+          </button>
+
+        </div>
+
+        <!-- Live Password Validation Rules -->
+        <div class="mt-3 space-y-1 text-sm">
+          <div id="rule-length" class="text-red-500">✗ At least 8 characters</div>
+          <div id="rule-upper" class="text-red-500">✗ One uppercase letter</div>
+          <div id="rule-lower" class="text-red-500">✗ One lowercase letter</div>
+          <div id="rule-number" class="text-red-500">✗ One number</div>
+          <div id="rule-special" class="text-red-500">✗ One special character</div>
+        </div>
+
+      </div>
+
+      <!-- Submit Button -->
+      <div class="text-center">
+        <button
+          type="submit"
+          id="decode-btn"
+          class="px-8 py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition"
+        >
+          Decode Message
+        </button>
+      </div>
+
+    </form>
+
+  </div>
 </div>
 
-<h2 class="text-3xl font-bold mb-10 text-center">Decode Hidden Message</h2>
-
-<form
-  id="decode-form"
-  method="POST"
-  action="/decode_action"
-  enctype="multipart/form-data"
-  class="space-y-8"
->
-  <!-- Upload Stego Image -->
-  <div>
-    <label class="block font-semibold mb-3"> Upload Stego Image </label>
-
-    <div
-      class="border-2 border-dashed border-indigo-400 rounded-xl p-6 text-center cursor-pointer hover:bg-indigo-50 transition"
-      onclick="document.getElementById('decodeImage').click()"
-    >
-      <input
-        type="file"
-        id="decodeImage"
-        name="image"
-        accept="image/png, image/jpeg"
-        class="hidden"
-        onchange="showFileName(this)"
-      />
-
-      <p class="text-gray-600">Drag & Drop your image here</p>
-      <p class="text-sm text-gray-400 mt-2">or click to browse files</p>
-
-      <p id="file-name" class="mt-3 text-sm text-indigo-600 font-medium"></p>
-    </div>
-  </div>
-
-  <!-- Password -->
-  <div>
-    <label class="block font-semibold mb-2">Enter Decryption Password</label>
-    <input
-      type="password"
-      name="password"
-      class="w-full border rounded-lg p-3"
-      required
-    />
-  </div>
-
-  <!-- Submit -->
-  <div class="text-center">
-    <button
-      type="submit"
-      id="decode-btn"
-      class="px-6 py-3 rounded-lg font-semibold saas-btn transition"
-    >
-      Decode Message
-    </button>
-  </div>
-</form>
-
-<!-- Processing Overlay -->
+<!-- ============================= -->
+<!-- Loading Overlay -->
+<!-- Appears while decoding -->
+<!-- ============================= -->
 <div
   id="processing-overlay"
   class="fixed inset-0 hidden items-center justify-center z-50 bg-white/70 backdrop-blur-sm"
@@ -82,19 +142,24 @@
       Please wait. Do not refresh the page.
     </p>
 
-    <div
-      class="w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"
-    ></div>
+    <!-- Spinner -->
+    <div class="w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
   </div>
 </div>
 
+<!-- ============================= -->
 <!-- Result Modal -->
+<!-- Shows decoded message -->
+<!-- ============================= -->
 <div
   id="result-modal"
   class="fixed inset-0 hidden items-center justify-center z-50 bg-white/70 backdrop-blur-sm"
 >
   <div class="bg-white rounded-2xl shadow-2xl px-10 py-8 text-center w-[400px]">
-    <h3 class="text-lg font-semibold text-indigo-600 mb-4">Decoded Message</h3>
+
+    <h3 class="text-lg font-semibold text-indigo-600 mb-4">
+      Decoded Message
+    </h3>
 
     <div
       id="decoded-message"
@@ -102,113 +167,157 @@
     ></div>
 
     <button
-      onclick="closeResult()"
-      class="px-5 py-2 rounded-lg bg-indigo-600 text-white"
+      id="close-modal-btn"
+      class="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
     >
       Close
     </button>
+
   </div>
 </div>
 
+<!-- ============================= -->
+<!-- JavaScript Logic -->
+<!-- ============================= -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("decode-form");
-    const btn = document.getElementById("decode-btn");
-    const modal = document.getElementById("result-modal");
-    const messageBox = document.getElementById("decoded-message");
-    const overlay = document.getElementById("processing-overlay");
 
-    const dropArea = document.querySelector(".border-dashed");
-    const fileInput = document.getElementById("decodeImage");
+document.addEventListener("DOMContentLoaded", function () {
 
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
+  /* ----------------------------------------
+     Element References
+  ---------------------------------------- */
+  const form = document.getElementById("decode-form");
+  const overlay = document.getElementById("processing-overlay");
+  const modal = document.getElementById("result-modal");
+  const messageBox = document.getElementById("decoded-message");
+  const closeBtn = document.getElementById("close-modal-btn");
+  const passwordInput = document.getElementById("decode-password");
+  const toggleBtn = document.getElementById("toggle-password-btn");
+  const dropArea = document.getElementById("drop-area");
+  const fileInput = document.getElementById("decodeImage");
+  const fileNameDisplay = document.getElementById("file-name");
 
-      // SHOW PROCESSING OVERLAY
-      overlay.classList.remove("hidden");
-      overlay.classList.add("flex");
-
-      btn.disabled = true;
-      btn.innerText = "Decoding...";
-
-      try {
-        const response = await fetch(form.action, {
-          method: "POST",
-          body: new FormData(form),
-        });
-
-        const text = await response.text();
-
-        overlay.classList.add("hidden");
-        overlay.classList.remove("flex");
-
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-
-        if (!response.ok) {
-          messageBox.innerHTML = `
-        <div class="text-red-600 font-semibold">
-          ❌ ${text}
-        </div>
-      `;
-        } else {
-          messageBox.innerHTML = `
-        <div class="text-green-600 font-semibold">
-          ✅ Message decrypted successfully
-        </div>
-        <div class="mt-3 text-gray-800 break-words">
-          ${text}
-        </div>
-      `;
-        }
-      } catch (error) {
-        overlay.classList.add("hidden");
-        overlay.classList.remove("flex");
-
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-
-        messageBox.innerHTML = `
-      <div class="text-red-600 font-semibold">
-        ❌ Something went wrong.
-      </div>
-  `;
-      }
-
-      btn.disabled = false;
-      btn.innerText = "Decode Message";
-    });
-
-    // Drag & Drop
-    dropArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropArea.classList.add("bg-indigo-100");
-    });
-
-    dropArea.addEventListener("dragleave", () => {
-      dropArea.classList.remove("bg-indigo-100");
-    });
-
-    dropArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropArea.classList.remove("bg-indigo-100");
-      fileInput.files = e.dataTransfer.files;
-      showFileName(fileInput);
-    });
+  /* ----------------------------------------
+     Show / Hide Password Toggle
+  ---------------------------------------- */
+  toggleBtn.addEventListener("click", function () {
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleBtn.textContent = "Hide";
+    } else {
+      passwordInput.type = "password";
+      toggleBtn.textContent = "Show";
+    }
   });
 
-  function closeResult() {
-    const modal = document.getElementById("result-modal");
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
+  /* ----------------------------------------
+     Live Password Validation
+     Checks each rule individually
+  ---------------------------------------- */
+  passwordInput.addEventListener("input", function () {
+    const value = passwordInput.value;
+
+    updateRule("rule-length", value.length >= 8);
+    updateRule("rule-upper", /[A-Z]/.test(value));
+    updateRule("rule-lower", /[a-z]/.test(value));
+    updateRule("rule-number", /\d/.test(value));
+    updateRule("rule-special", /[^A-Za-z0-9]/.test(value));
+  });
+
+  function updateRule(id, isValid) {
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    element.classList.toggle("text-green-600", isValid);
+    element.classList.toggle("text-red-500", !isValid);
+
+    element.innerHTML = isValid
+      ? element.innerHTML.replace("✗", "✓")
+      : element.innerHTML.replace("✓", "✗");
   }
 
-  function showFileName(input) {
-    const fileName = input.files.length > 0 ? input.files[0].name : "";
-    document.getElementById("file-name").innerText = fileName
-      ? "Selected: " + fileName
-      : "";
+  /* ----------------------------------------
+     Drag & Drop File Handling
+  ---------------------------------------- */
+  dropArea.addEventListener("click", () => fileInput.click());
+
+  dropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropArea.classList.add("bg-indigo-100");
+  });
+
+  dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("bg-indigo-100");
+  });
+
+  dropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropArea.classList.remove("bg-indigo-100");
+    fileInput.files = e.dataTransfer.files;
+    displayFileName();
+  });
+
+  fileInput.addEventListener("change", displayFileName);
+
+  function displayFileName() {
+    fileNameDisplay.textContent =
+      fileInput.files.length > 0
+        ? "Selected: " + fileInput.files[0].name
+        : "";
   }
+
+  /* ----------------------------------------
+     Form Submission via Fetch API
+     Shows overlay, sends request,
+     then displays result modal
+  ---------------------------------------- */
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    overlay.classList.remove("hidden");
+    overlay.classList.add("flex");
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+      });
+
+      const text = await response.text();
+
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+
+      messageBox.innerHTML = response.ok
+        ? `<div class="text-green-600 font-semibold">✅ Message decrypted successfully</div>
+           <div class="mt-3">${text}</div>`
+        : `<div class="text-red-600 font-semibold">❌ ${text}</div>`;
+
+    } catch (error) {
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+
+      messageBox.innerHTML =
+        `<div class="text-red-600 font-semibold">❌ Something went wrong.</div>`;
+    }
+  });
+
+  /* ----------------------------------------
+     Close Result Modal
+  ---------------------------------------- */
+  closeBtn.addEventListener("click", function () {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  });
+
+});
+
 </script>
-</div>
+
 {% endblock %}

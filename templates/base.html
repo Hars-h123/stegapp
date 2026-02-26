@@ -2,48 +2,68 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StegApp</title>
+
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Global Custom CSS -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
+
+    <!-- Hover Step Styling (Used on index page) -->
+    <style>
+      .hover-step {
+        padding: 20px;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .hover-step:hover {
+        transform: translateX(10px) scale(1.05);
+        background: #eef2ff;
+      }
+    </style>
   </head>
 
-  <body id="main-body" class="min-h-screen bd-gray-100">
-    <!-- Navbar -->
-      <nav id="navbar" class="flex justify-between items-center p-4 shadow-md">
-      <a href="/" class="text-xl font-bold hover:opacity-80 transition">
-        StegApp 🔐
-      </a>
+  <!-- Clean Light Background -->
+  <body class="min-h-screen bg-gray-50 text-gray-900">
 
-      <!-- Theme Toggle -->
-      <button onclick="toggleTheme()" class="px-4 py-2 rounded-lg border">
-        Switch Theme
-      </button>
+    <!-- ========================= -->
+    <!-- Navbar -->
+    <!-- ========================= -->
+    <nav class="bg-white shadow-sm">
+      <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+        <!-- Logo -->
+        <a href="/" class="text-xl font-bold text-indigo-600 hover:opacity-80 transition">
+          StegApp 🔐
+        </a>
+
+      </div>
     </nav>
 
-    <!-- Page Content -->
+    <!-- ========================= -->
+    <!-- Page Content Wrapper -->
+    <!-- ========================= -->
+    <main class="max-w-5xl mx-auto px-6 py-12">
+      {% block content %}{% endblock %}
+    </main>
 
+    <!-- ========================= -->
+    <!-- Global Toast (Optional) -->
+    <!-- ========================= -->
+    <div
+      id="toast"
+      class="hidden fixed top-20 right-4 z-50
+             bg-indigo-600 text-white
+             px-6 py-3 rounded-xl shadow-lg"
+    >
+    </div>
 
-    <!-- Global Toast -->
-    <div id="toast"
-     style="
-        position: fixed;
-        top: 80px;
-        right: 16px;
-        z-index: 9999;
-        background: rgba(79, 70, 229, 0.95);
-        color: white;
-        padding: 12px 24px;
-        border-radius: 12px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        font-weight: 500;
-     "
-     class="hidden">
-</div>
-
-
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
   </body>
 </html>

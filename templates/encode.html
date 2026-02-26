@@ -1,263 +1,327 @@
-{% extends "base.html" %}
-<div class="max-w-3xl mx-auto bg-white rounded-2xl shadowxl p-10">
-  {% block content %}
+{% extends "base.html" %} {% block content %}
 
-  <!-- Back Link -->
-  <div class="mb-6">
-    <a
-      href="/"
-      class="text-sm font-medium opacity-70 hover:opacity-100 transition"
+<div class="max-w-3xl mx-auto w-full">
+  <!-- Card Wrapper -->
+  <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+    <!-- Back Link -->
+    <div class="mb-6">
+      <a
+        href="/"
+        class="text-sm font-medium opacity-70 hover:opacity-100 transition"
+      >
+        ← Back
+      </a>
+    </div>
+
+    <h2 class="text-3xl font-bold mb-10 text-center">Encode Secret Message</h2>
+
+    <form
+      id="encode-form"
+      method="POST"
+      action="/encode_action"
+      enctype="multipart/form-data"
+      class="space-y-8"
     >
-      ← Back
-    </a>
+      <!-- Image Source Selection -->
+      <div class="space-y-3">
+        <label class="block font-semibold"> Choose Image Source </label>
+
+        <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="image_source" value="sample" />
+            Use Sample Image
+          </label>
+
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="image_source" value="upload" />
+            Upload Your Own Image
+          </label>
+        </div>
+      </div>
+
+      <!-- Sample Images -->
+      <div id="sample-images" class="hidden grid grid-cols-3 gap-6">
+        {% for i in range(1,4) %}
+        <label class="relative cursor-pointer group">
+          <input
+            type="radio"
+            name="sample_img"
+            value="sample{{i}}.png"
+            class="hidden peer"
+          />
+
+          <img
+            src="{{ url_for('static', filename='sample_images/sample' ~ i ~ '.png') }}"
+            class="w-full h-36 object-cover rounded-xl border-2 border-transparent group-hover:scale-105 transition duration-300 peer-checked:border-indigo-500 shadow-md"
+          />
+        </label>
+        {% endfor %}
+      </div>
+
+      <!-- Upload Section -->
+      <div id="upload-section" class="hidden">
+        <label class="block font-semibold mb-3"> Upload Carrier Image </label>
+
+        <div
+          class="border-2 border-dashed border-indigo-400 rounded-xl p-8 text-center cursor-pointer hover:bg-indigo-50 transition"
+          onclick="document.getElementById('imageInput').click()"
+        >
+          <input
+            type="file"
+            id="imageInput"
+            name="image"
+            accept="image/png, image/jpeg"
+            class="hidden"
+            onchange="showFileName(this)"
+          />
+
+          <p class="text-gray-600">Drag & Drop your image here</p>
+
+          <p class="text-sm text-gray-400 mt-2">or click to browse files</p>
+
+          <p
+            id="file-name"
+            class="mt-3 text-sm text-indigo-600 font-medium"
+          ></p>
+
+          <p class="mt-4 text-xs text-gray-500">
+            For best results, use PNG format.
+          </p>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div>
+        <label class="block font-semibold mb-2"> Enter Secret Message </label>
+
+        <textarea
+          name="message"
+          rows="4"
+          class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 outline-none"
+          required
+        ></textarea>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label class="block font-semibold mb-2"> Encryption Password </label>
+
+        <div class="relative">
+          <input
+            type="password"
+            name="password"
+            id="encode-password"
+            minlength="8"
+            required
+            class="w-full border rounded-lg p-3 pr-12 focus:ring-2 focus:ring-indigo-400 outline-none"
+          />
+
+          <button
+            type="button"
+            onclick="togglePassword('encode-password', this)"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
+          >
+            Show
+          </button>
+        </div>
+
+        <div id="encode-password-feedback" class="mt-3 space-y-1 text-sm">
+          <div id="rule-length" class="text-red-500">
+            ✗ At least 8 characters
+          </div>
+          <div id="rule-upper" class="text-red-500">✗ One uppercase letter</div>
+          <div id="rule-lower" class="text-red-500">✗ One lowercase letter</div>
+          <div id="rule-number" class="text-red-500">✗ One number</div>
+          <div id="rule-special" class="text-red-500">
+            ✗ One special character
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-center">
+        <button
+          type="submit"
+          id="encode-btn"
+          class="px-8 py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition"
+        >
+          Encrypt & Download
+        </button>
+      </div>
+    </form>
   </div>
+</div>
 
-  <h2 class="text-3xl font-bold mb-10 text-center">Encode Secret Message</h2>
-
-  <form
-    id="encode-form"
-    method="POST"
-    action="/encode_action"
-    enctype="multipart/form-data"
-    class="space-y-8"
-  >
-    <!-- Image Source Selection -->
-    <div class="space-y-3">
-      <label class="block font-semibold">Choose Image Source</label>
-
-      <div class="flex gap-6">
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="image_source" value="sample" />
-          Use Sample Image
-        </label>
-
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="radio" name="image_source" value="upload" />
-          Upload Your Own Image
-        </label>
-      </div>
+<!-- Loading Overlay -->
+<div
+  id="overlay"
+  class="fixed inset-0 hidden items-center justify-center z-50 bg-white/70 backdrop-blur-sm"
+>
+  <div class="bg-white rounded-2xl shadow-2xl px-10 py-8 text-center w-[320px]">
+    <div id="overlay-title" class="text-indigo-600 text-lg font-semibold mb-3">
+      Encrypting your image...
     </div>
 
-    <!-- Sample Images -->
-    <div id="sample-images" class="hidden grid grid-cols-3 gap-6">
-      {% for i in range(1,4) %}
-      <label class="relative cursor-pointer group">
-        <input
-          type="radio"
-          name="sample_img"
-          value="sample{{i}}.png"
-          class="hidden peer"
-        />
+    <p id="overlay-subtext" class="text-gray-500 text-sm mb-4">
+      Please wait. Do not refresh the page.
+    </p>
 
-        <img
-          src="{{ url_for('static', filename='sample_images/sample' ~ i ~ '.png') }}"
-          class="w-full h-36 object-cover rounded-xl border-2 border-transparent group-hover:scale-105 transition duration-300 peer-checked:border-indigo-500 shadow-md"
-        />
-      </label>
-      {% endfor %}
-    </div>
-
-    <!-- Upload Section -->
-    <div id="upload-section" class="hidden">
-      <label class="block font-semibold mb-3">Upload Carrier Image</label>
-
-      <div
-        class="border-2 border-dashed border-indigo-400 rounded-xl p-6 text-center cursor-pointer hover:bg-indigo-50 transition"
-        onclick="document.getElementById('imageInput').click()"
-      >
-        <input
-          type="file"
-          id="imageInput"
-          name="image"
-          accept="image/png, image/jpeg"
-          class="hidden"
-          onchange="showFileName(this)"
-        />
-
-        <p class="text-gray-600">Drag & Drop your image here</p>
-        <p class="text-sm text-gray-400 mt-2">or click to browse files</p>
-
-        <p id="file-name" class="mt-3 text-sm text-indigo-600 font-medium"></p>
-
-        <p class="mt-4 text-xs text-gray-500">
-          For best results, use PNG format (lossless compression preserves
-          hidden data).
-        </p>
-      </div>
-    </div>
-
-    <!-- Message -->
-    <div>
-      <label class="block font-semibold mb-2">Enter Secret Message</label>
-      <textarea
-        name="message"
-        rows="4"
-        class="w-full border rounded-lg p-3"
-        required
-      ></textarea>
-    </div>
-
-    <!-- Password -->
-    <div>
-      <label class="block font-semibold mb-2">Encryption Password</label>
-      <input
-        type="password"
-        name="password"
-        class="w-full border rounded-lg p-3"
-        required
-      />
-    </div>
-
-    <!-- Submit -->
-    <div class="text-center">
-      <button
-        type="submit"
-        id="encode-btn"
-        class="px-6 py-3 rounded-lg font-semibold saas-btn transition"
-      >
-        Encrypt & Download
-      </button>
-    </div>
-  </form>
-
-  <!-- Loading Overlay -->
-  <div
-    id="overlay"
-    class="fixed inset-0 hidden items-center justify-center z-50 bg-white/70 backdrop-blur-sm"
-  >
     <div
-      id="overlay-card"
-      class="bg-white rounded-2xl shadow-2xl px-10 py-8 text-center w-[320px] transition-all duration-300"
-    >
-      <div
-        id="overlay-title"
-        class="text-indigo-600 text-lg font-semibold mb-3"
-      >
-        Encrypting your image...
-      </div>
-
-      <p id="overlay-subtext" class="text-gray-500 text-sm mb-4">
-        Please wait. Do not refresh the page.
-      </p>
-
-      <div
-        id="overlay-spinner"
-        class="w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"
-      ></div>
-    </div>
+      id="overlay-spinner"
+      class="w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"
+    ></div>
   </div>
+</div>
 
-  <!-- JS -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const sampleSection = document.getElementById("sample-images");
-      const uploadSection = document.getElementById("upload-section");
-      const radios = document.querySelectorAll("input[name='image_source']");
-      const form = document.querySelector("form");
-      const overlay = document.getElementById("overlay");
-      const title = document.getElementById("overlay-title");
-      const subtext = document.getElementById("overlay-subtext");
-      const spinner = document.getElementById("overlay-spinner");
-      const btn = document.getElementById("encode-btn");
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const sampleSection = document.getElementById("sample-images");
+    const uploadSection = document.getElementById("upload-section");
+    const radios = document.querySelectorAll("input[name='image_source']");
+    const form = document.getElementById("encode-form");
+    const overlay = document.getElementById("overlay");
+    const title = document.getElementById("overlay-title");
+    const subtext = document.getElementById("overlay-subtext");
+    const spinner = document.getElementById("overlay-spinner");
+    const btn = document.getElementById("encode-btn");
 
-      // Drag & Drop for Encode Upload
-      const dropArea = document.querySelector("#upload-section .border-dashed");
-      const fileInput = document.getElementById("imageInput");
+    const dropArea = document.querySelector("#upload-section .border-dashed");
+    const fileInput = document.getElementById("imageInput");
 
-      if (dropArea && fileInput) {
-        dropArea.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          dropArea.classList.add("bg-indigo-100");
-        });
-
-        dropArea.addEventListener("dragleave", () => {
-          dropArea.classList.remove("bg-indigo-100");
-        });
-
-        dropArea.addEventListener("drop", (e) => {
-          e.preventDefault();
-          dropArea.classList.remove("bg-indigo-100");
-
-          fileInput.files = e.dataTransfer.files;
-          showFileName(fileInput);
-        });
-      }
-
-      // Toggle image sections
-      radios.forEach((radio) => {
-        radio.addEventListener("change", function () {
-          sampleSection.classList.add("hidden");
-          uploadSection.classList.add("hidden");
-
-          if (this.value === "sample") {
-            sampleSection.classList.remove("hidden");
-          }
-          if (this.value === "upload") {
-            uploadSection.classList.remove("hidden");
-          }
-        });
+    if (dropArea && fileInput) {
+      dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("bg-indigo-100");
       });
 
-      // Submit logic
-      form.addEventListener("submit", async function (e) {
+      dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("bg-indigo-100");
+      });
+
+      dropArea.addEventListener("drop", (e) => {
         e.preventDefault();
+        dropArea.classList.remove("bg-indigo-100");
+        fileInput.files = e.dataTransfer.files;
+        showFileName(fileInput);
+      });
+    }
 
-        // SHOW LOADING STATE
-        overlay.classList.remove("hidden");
-        overlay.classList.add("flex");
+    radios.forEach((radio) => {
+      radio.addEventListener("change", function () {
+        sampleSection.classList.add("hidden");
+        uploadSection.classList.add("hidden");
 
-        title.innerText = "Encrypting your image...";
-        subtext.innerText = "Please wait. Do not refresh the page.";
-        spinner.classList.remove("hidden");
-
-        btn.disabled = true;
-        btn.innerText = "Processing...";
-
-        try {
-          const response = await fetch(form.action, {
-            method: "POST",
-            body: new FormData(form),
-          });
-
-          const blob = await response.blob();
-          const url = window.URL.createObjectURL(blob);
-
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-
-          window.URL.revokeObjectURL(url);
-
-          // SUCCESS STATE
-          title.innerText = "Your Stego Image Is Downloaded ✅";
-          subtext.innerText = "Encryption completed successfully.";
-          spinner.classList.add("hidden");
-        } catch (error) {
-          title.innerText = "Something went wrong ❌";
-          subtext.innerText = "Please try again.";
-          spinner.classList.add("hidden");
+        if (this.value === "sample") {
+          sampleSection.classList.remove("hidden");
         }
 
-        // Hide overlay after short delay
-        setTimeout(() => {
-          overlay.classList.add("hidden");
-          overlay.classList.remove("flex");
-
-          btn.disabled = false;
-          btn.innerText = "Encrypt & Download";
-        }, 3500);
+        if (this.value === "upload") {
+          uploadSection.classList.remove("hidden");
+        }
       });
     });
 
-    function showFileName(input) {
-      const fileName = input.files.length > 0 ? input.files[0].name : "";
-      document.getElementById("file-name").innerText = fileName
-        ? "Selected: " + fileName
-        : "";
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+
+      btn.disabled = true;
+      btn.innerText = "Processing...";
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+        });
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+
+        title.innerText = "Your Stego Image Is Downloaded ✅";
+        subtext.innerText = "Encryption completed successfully.";
+        spinner.classList.add("hidden");
+      } catch (error) {
+        title.innerText = "Something went wrong ❌";
+        subtext.innerText = "Please try again.";
+        spinner.classList.add("hidden");
+      }
+
+      setTimeout(() => {
+        overlay.classList.add("hidden");
+        overlay.classList.remove("flex");
+        btn.disabled = false;
+        btn.innerText = "Encrypt & Download";
+      }, 3000);
+    });
+  });
+
+  function showFileName(input) {
+    const fileName = input.files.length > 0 ? input.files[0].name : "";
+    document.getElementById("file-name").innerText = fileName
+      ? "Selected: " + fileName
+      : "";
+  }
+
+  function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+      input.type = "text";
+      btn.textContent = "Hide";
+    } else {
+      input.type = "password";
+      btn.textContent = "Show";
     }
-  </script>
-</div>
+  }
+
+  function validatePassword(inputId, feedbackContainerId) {
+    const input = document.getElementById(inputId);
+
+    input.addEventListener("input", function () {
+      const value = input.value;
+
+      const rules = {
+        length: value.length >= 8,
+        upper: /[A-Z]/.test(value),
+        lower: /[a-z]/.test(value),
+        number: /\d/.test(value),
+        special: /[^A-Za-z0-9]/.test(value),
+      };
+
+      updateRule("rule-length", rules.length);
+      updateRule("rule-upper", rules.upper);
+      updateRule("rule-lower", rules.lower);
+      updateRule("rule-number", rules.number);
+      updateRule("rule-special", rules.special);
+    });
+  }
+
+  function updateRule(id, isValid) {
+    const element = document.getElementById(id);
+
+    if (!element) return;
+
+    if (isValid) {
+      element.classList.remove("text-red-500");
+      element.classList.add("text-green-600");
+      element.innerHTML = element.innerHTML.replace("✗", "✓");
+    } else {
+      element.classList.remove("text-green-600");
+      element.classList.add("text-red-500");
+      element.innerHTML = element.innerHTML.replace("✓", "✗");
+    }
+  }
+  validatePassword("encode-password", "encode-password-feedback");
+</script>
+
 {% endblock %}

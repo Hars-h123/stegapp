@@ -1,64 +1,133 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="text-center py-16">
+<!-- HERO SECTION -->
+<section class="min-h-[85vh] flex flex-col justify-center items-center text-center px-4">
 
-  <h1 class="text-5xl font-extrabold mb-6 leading-tight">
-    Secure Image <span class="text-indigo-600">Steganography</span>
+  <h1 class="text-4xl sm:text-6xl font-extrabold leading-tight mb-6">
+    Hide Messages in Plain Sight
+    <br class="hidden sm:block">
+    with <span class="text-indigo-600">StegApp</span>
   </h1>
 
-  <p class="text-gray-500 text-lg max-w-2xl mx-auto mb-10">
-    Encrypt messages using AES encryption and hide them inside images
-    with lossless LSB steganography.
-    Built for secure communication and practical cryptography learning.
+  <p class="text-gray-500 text-lg sm:text-xl max-w-2xl mx-auto mb-10">
+    Encrypt your message. Embed it invisibly inside an image.
+    Share it anywhere — only the right password reveals the truth.
   </p>
 
-  <div class="flex flex-col sm:flex-row justify-center gap-6 mb-16">
+  <div class="flex flex-col sm:flex-row justify-center gap-6 mb-16 w-full sm:w-auto">
     <a href="/encode"
-       class="px-8 py-4 bg-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 transition transform duration-200">
+       class="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white rounded-xl shadow-lg hover:scale-105 hover:bg-indigo-700 transition duration-300">
        Encode Message
     </a>
 
     <a href="/decode"
-       class="px-8 py-4 border border-indigo-600 text-indigo-600 rounded-xl hover:bg-indigo-50 transition">
+       class="w-full sm:w-auto px-8 py-4 border border-indigo-600 text-indigo-600 rounded-xl hover:bg-indigo-50 transition duration-300">
        Decode Message
     </a>
   </div>
 
 </section>
 
-<section class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
 
-  <div class="p-6 rounded-2xl shadow-md bg-white">
-    <h3 class="text-xl font-semibold mb-3 text-indigo-600">
-      AES Encryption
-    </h3>
-    <p class="text-gray-500 text-sm">
-      Messages are encrypted using password-based AES encryption
-      before being embedded inside images.
-    </p>
-  </div>
+<!-- HOW IT WORKS -->
+<section class="py-32 px-4">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20 items-start">
 
-  <div class="p-6 rounded-2xl shadow-md bg-white">
-    <h3 class="text-xl font-semibold mb-3 text-indigo-600">
-      LSB Steganography
-    </h3>
-    <p class="text-gray-500 text-sm">
-      Hidden data is embedded at pixel-level without visually
-      altering the original image.
-    </p>
-  </div>
+    <!-- LEFT SIDE -->
+    <div class="space-y-10">
 
-  <div class="p-6 rounded-2xl shadow-md bg-white">
-    <h3 class="text-xl font-semibold mb-3 text-indigo-600">
-      Cross-Device Support
-    </h3>
-    <p class="text-gray-500 text-sm">
-      Works seamlessly across laptop and mobile devices
-      over local network.
-    </p>
+      <div class="hover-step" data-icon="🔐">
+        <h3 class="text-2xl font-semibold mb-3">
+          🔐 Encrypt Your Message
+        </h3>
+        <p class="text-gray-500">
+          Secure your text using strong password-based encryption.
+        </p>
+      </div>
+
+      <div class="hover-step" data-icon="🖼️">
+        <h3 class="text-2xl font-semibold mb-3">
+          🖼️ Hide Inside an Image
+        </h3>
+        <p class="text-gray-500">
+          Embed encrypted data invisibly inside image pixels.
+        </p>
+      </div>
+
+      <div class="hover-step" data-icon="📤">
+        <h3 class="text-2xl font-semibold mb-3">
+          📤 Share Securely
+        </h3>
+        <p class="text-gray-500">
+          Only the correct password can reveal the hidden message.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDE VISUAL -->
+    <div class="sticky top-32 flex justify-center">
+      <div id="visual-box"
+           class="w-72 h-72 bg-indigo-100 rounded-3xl flex items-center justify-center text-7xl transition-all duration-500 shadow-xl">
+        🔐
+      </div>
+    </div>
+
   </div>
+</section>
+
+
+<!-- FINAL CTA -->
+<section class="py-20 text-center px-4 bg-indigo-50 rounded-3xl">
+
+  <h3 class="text-2xl sm:text-3xl font-bold mb-6">
+    Ready to hide your first secret?
+  </h3>
+
+  <a href="/encode"
+     class="inline-block px-10 py-4 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 transition duration-300">
+     Start Encoding
+  </a>
 
 </section>
+
+
+<!-- HOVER INTERACTION SCRIPT -->
+<script>
+  const steps = document.querySelectorAll('.hover-step');
+  const visual = document.getElementById('visual-box');
+
+  steps.forEach(step => {
+    step.addEventListener('mouseenter', () => {
+      const icon = step.getAttribute('data-icon');
+
+      visual.style.opacity = 0;
+      visual.style.transform = "scale(0.9)";
+
+      setTimeout(() => {
+        visual.textContent = icon;
+        visual.style.opacity = 1;
+        visual.style.transform = "scale(1)";
+      }, 150);
+    });
+  });
+</script>
+
+
+<!-- HOVER STYLE -->
+<style>
+  .hover-step {
+    padding: 24px;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .hover-step:hover {
+    background: #eef2ff;
+    transform: translateX(10px) scale(1.04);
+  }
+</style>
 
 {% endblock %}
