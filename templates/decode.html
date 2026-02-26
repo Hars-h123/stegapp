@@ -1,29 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- ============================= -->
-<!-- Main Card Wrapper (Centered) -->
-<!-- ============================= -->
 <div class="max-w-3xl mx-auto w-full">
 
-  <!-- White Card Container -->
   <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
 
-    <!-- Back Navigation -->
     <div class="mb-6">
       <a href="/" class="text-sm font-medium opacity-70 hover:opacity-100 transition">
         ← Back
       </a>
     </div>
 
-    <!-- Page Title -->
     <h2 class="text-3xl font-bold mb-10 text-center">
       Decode Hidden Message
     </h2>
 
-    <!-- ============================= -->
-    <!-- Decode Form -->
-    <!-- ============================= -->
     <form
       id="decode-form"
       method="POST"
@@ -32,20 +23,17 @@
       class="space-y-8"
     >
 
-      <!-- ============================= -->
-      <!-- Image Upload Section -->
-      <!-- ============================= -->
+      <!-- Upload Section -->
       <div>
         <label class="block font-semibold mb-3">
           Upload Stego Image
         </label>
 
-        <!-- Clickable Drop Area -->
         <div
           id="drop-area"
           class="border-2 border-dashed border-indigo-400 rounded-xl p-8 text-center cursor-pointer hover:bg-indigo-50 transition"
         >
-          <!-- Hidden File Input -->
+
           <input
             type="file"
             id="decodeImage"
@@ -62,21 +50,17 @@
             or click to browse files
           </p>
 
-          <!-- Selected file name appears here -->
           <p id="file-name" class="mt-3 text-sm text-indigo-600 font-medium"></p>
         </div>
       </div>
 
-      <!-- ============================= -->
       <!-- Password Section -->
-      <!-- ============================= -->
       <div>
 
         <label class="block font-semibold mb-2">
           Enter Decryption Password
         </label>
 
-        <!-- Password Input + Toggle Button -->
         <div class="relative">
 
           <input
@@ -87,7 +71,6 @@
             class="w-full border rounded-lg p-3 pr-12 focus:ring-2 focus:ring-indigo-400 outline-none"
           />
 
-          <!-- Show / Hide Password Button -->
           <button
             type="button"
             id="toggle-password-btn"
@@ -98,18 +81,8 @@
 
         </div>
 
-        <!-- Live Password Validation Rules -->
-        <div class="mt-3 space-y-1 text-sm">
-          <div id="rule-length" class="text-red-500">✗ At least 8 characters</div>
-          <div id="rule-upper" class="text-red-500">✗ One uppercase letter</div>
-          <div id="rule-lower" class="text-red-500">✗ One lowercase letter</div>
-          <div id="rule-number" class="text-red-500">✗ One number</div>
-          <div id="rule-special" class="text-red-500">✗ One special character</div>
-        </div>
-
       </div>
 
-      <!-- Submit Button -->
       <div class="text-center">
         <button
           type="submit"
@@ -125,10 +98,7 @@
   </div>
 </div>
 
-<!-- ============================= -->
 <!-- Loading Overlay -->
-<!-- Appears while decoding -->
-<!-- ============================= -->
 <div
   id="processing-overlay"
   class="fixed inset-0 hidden items-center justify-center z-50 bg-white/70 backdrop-blur-sm"
@@ -142,15 +112,11 @@
       Please wait. Do not refresh the page.
     </p>
 
-    <!-- Spinner -->
     <div class="w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
   </div>
 </div>
 
-<!-- ============================= -->
 <!-- Result Modal -->
-<!-- Shows decoded message -->
-<!-- ============================= -->
 <div
   id="result-modal"
   class="fixed inset-0 hidden items-center justify-center z-50 bg-white/70 backdrop-blur-sm"
@@ -176,16 +142,10 @@
   </div>
 </div>
 
-<!-- ============================= -->
-<!-- JavaScript Logic -->
-<!-- ============================= -->
 <script>
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  /* ----------------------------------------
-     Element References
-  ---------------------------------------- */
   const form = document.getElementById("decode-form");
   const overlay = document.getElementById("processing-overlay");
   const modal = document.getElementById("result-modal");
@@ -197,9 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById("decodeImage");
   const fileNameDisplay = document.getElementById("file-name");
 
-  /* ----------------------------------------
-     Show / Hide Password Toggle
-  ---------------------------------------- */
+  /* Show / Hide Password */
   toggleBtn.addEventListener("click", function () {
     if (passwordInput.type === "password") {
       passwordInput.type = "text";
@@ -210,35 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  /* ----------------------------------------
-     Live Password Validation
-     Checks each rule individually
-  ---------------------------------------- */
-  passwordInput.addEventListener("input", function () {
-    const value = passwordInput.value;
-
-    updateRule("rule-length", value.length >= 8);
-    updateRule("rule-upper", /[A-Z]/.test(value));
-    updateRule("rule-lower", /[a-z]/.test(value));
-    updateRule("rule-number", /\d/.test(value));
-    updateRule("rule-special", /[^A-Za-z0-9]/.test(value));
-  });
-
-  function updateRule(id, isValid) {
-    const element = document.getElementById(id);
-    if (!element) return;
-
-    element.classList.toggle("text-green-600", isValid);
-    element.classList.toggle("text-red-500", !isValid);
-
-    element.innerHTML = isValid
-      ? element.innerHTML.replace("✗", "✓")
-      : element.innerHTML.replace("✓", "✗");
-  }
-
-  /* ----------------------------------------
-     Drag & Drop File Handling
-  ---------------------------------------- */
+  /* Drag & Drop */
   dropArea.addEventListener("click", () => fileInput.click());
 
   dropArea.addEventListener("dragover", (e) => {
@@ -266,18 +196,16 @@ document.addEventListener("DOMContentLoaded", function () {
         : "";
   }
 
-  /* ----------------------------------------
-     Form Submission via Fetch API
-     Shows overlay, sends request,
-     then displays result modal
-  ---------------------------------------- */
+  /* Form Submit */
   form.addEventListener("submit", async function (e) {
+
     e.preventDefault();
 
     overlay.classList.remove("hidden");
     overlay.classList.add("flex");
 
     try {
+
       const response = await fetch(form.action, {
         method: "POST",
         body: new FormData(form),
@@ -297,6 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
         : `<div class="text-red-600 font-semibold">❌ ${text}</div>`;
 
     } catch (error) {
+
       overlay.classList.add("hidden");
       overlay.classList.remove("flex");
 
@@ -306,11 +235,9 @@ document.addEventListener("DOMContentLoaded", function () {
       messageBox.innerHTML =
         `<div class="text-red-600 font-semibold">❌ Something went wrong.</div>`;
     }
+
   });
 
-  /* ----------------------------------------
-     Close Result Modal
-  ---------------------------------------- */
   closeBtn.addEventListener("click", function () {
     modal.classList.add("hidden");
     modal.classList.remove("flex");
