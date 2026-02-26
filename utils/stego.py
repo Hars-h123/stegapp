@@ -2,74 +2,70 @@ from PIL import Image
 
 
 def encode_image(input_path, secret_data, output_path):
-    image = Image.open(input_path)
-    image = image.convert("RGB")
+    image = Image.open(input_path).convert("RGB")
+    pixels = image.load()
 
-    encoded = image.copy()
-    index = 0
+    width, height = image.size
 
-    # Convert secret data to binary
+    # Convert secret to binary
     binary_secret = ''.join(format(byte, '08b') for byte in secret_data)
     binary_secret += '11111110'  # End delimiter
 
-    pixels = list(encoded.getdata())
-    new_pixels = []
+    data_index = 0
+    data_len = len(binary_secret)
 
-    for i, pixel in enumerate(pixels):
-        r, g, b = pixel
+    for y in range(height):
+        for x in range(width):
+            if data_index >= data_len:
+                break
 
-        if index < len(binary_secret):
-            r = (r & ~1) | int(binary_secret[index])
-            index += 1
+            r, g, b = pixels[x, y]
 
-        if index < len(binary_secret):
-            g = (g & ~1) | int(binary_secret[index])
-            index += 1
+            if data_index < data_len:
+                r = (r & ~1) | int(binary_secret[data_index])
+                data_index += 1
 
-        if index < len(binary_secret):
-            b = (b & ~1) | int(binary_secret[index])
-            index += 1
+            if data_index < data_len:
+                g = (g & ~1) | int(binary_secret[data_index])
+                data_index += 1
 
-        new_pixels.append((r, g, b))
+            if data_index < data_len:
+                b = (b & ~1) | int(binary_secret[data_index])
+                data_index += 1
 
-        # 🚀 STOP early once secret is fully embedded
-        if index >= len(binary_secret):
-            new_pixels.extend(pixels[i+1:])
+            pixels[x, y] = (r, g, b)
+
+        if data_index >= data_len:
             break
 
-    encoded.putdata(new_pixels)
-    encoded.save(output_path)
-    
+    image.save(output_path)
+    image.close()
+
+
 def decode_image(image_path):
-    from PIL import Image
+    image = Image.open(image_path).convert("RGB")
+    pixels = image.load()
 
-    image = Image.open(image_path)
-    image = image.convert("RGB")
-
-    pixels = list(image.getdata())
+    width, height = image.size
 
     binary_data = ""
-    delimiter = "1111111111111110"
+    delimiter = "11111110"
 
-    for pixel in pixels:
-        r, g, b = pixel
+    for y in range(height):
+        for x in range(width):
+            r, g, b = pixels[x, y]
 
-        binary_data += str(r & 1)
-        binary_data += str(g & 1)
-        binary_data += str(b & 1)
+            binary_data += str(r & 1)
+            binary_data += str(g & 1)
+            binary_data += str(b & 1)
 
-        # STOP as soon as delimiter appears
-        if delimiter in binary_data:
-            binary_data = binary_data.split(delimiter)[0]
-            break
+            if delimiter in binary_data:
+                binary_data = binary_data.split(delimiter)[0]
+                image.close()
+                return bytes(
+                    int(binary_data[i:i+8], 2)
+                    for i in range(0, len(binary_data), 8)
+                )
 
-    # Convert to bytes
-    all_bytes = [binary_data[i:i+8] for i in range(0, len(binary_data), 8)]
-
-    decoded_bytes = bytearray()
-
-    for byte in all_bytes:
-        if len(byte) == 8:
-            decoded_bytes.append(int(byte, 2))
-
-    return bytes(decoded_bytes)
+    image.close()
+    return b""
