@@ -1,78 +1,72 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StegApp</title>
 
-    <!-- Tailwind CDN -->
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['"Helvetica Neue"', "Helvetica", "Arial", "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+<head>
 
-    <!-- Global Custom CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Hover Step Styling (Used on index page) -->
-    <style>
-      .hover-step {
-        padding: 20px;
-        border-radius: 16px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
+<title>StegApp</title>
 
-      .hover-step:hover {
-        transform: translateX(10px) scale(1.05);
-        background: #eef2ff;
-      }
-    </style>
-  </head>
+<script>
+tailwind.config = {
+theme:{
+extend:{
+fontFamily:{
+sans:['"Helvetica Neue"', "Helvetica","Arial","sans-serif"]
+}
+}
+}
+}
+</script>
 
-  <!-- Clean Light Background -->
-  <body class="min-h-screen bg-gray-50 text-gray-900">
-    <!-- ========================= -->
-    <!-- Navbar -->
-    <!-- ========================= -->
-    <nav class="bg-white shadow-sm">
-      <div
-        class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center"
-      >
-        <!-- Logo -->
-        <a
-          href="/"
-          class="text-xl font-bold text-indigo-600 hover:opacity-80 transition"
-        >
-          StegApp 🔐
-        </a>
-      </div>
-    </nav>
+<script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- ========================= -->
-    <!-- Page Content Wrapper -->
-    <!-- ========================= -->
-    <main class="max-w-5xl mx-auto px-6 py-12">
-      {% block content %}{% endblock %}
-    </main>
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}">
 
-    <!-- ========================= -->
-    <!-- Global Toast (Optional) -->
-    <!-- ========================= -->
-    <div
-      id="toast"
-      class="hidden fixed top-20 right-4 z-50 bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-lg"
-    ></div>
-  </body>
+</head>
+
+<body class="min-h-screen text-gray-900">
+
+<!-- NAVBAR -->
+<nav class="sticky top-0 backdrop-blur bg-white/60 border-b border-gray-200 z-50">
+
+<div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+<a href="/" class="text-xl font-bold text-indigo-600">
+StegApp 🔐
+</a>
+
+<div class="flex gap-8 text-sm font-medium">
+
+<a href="/encode" class="hover:text-indigo-600">
+Encode
+</a>
+
+<a href="/decode" class="hover:text-indigo-600">
+Decode
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
+
+<main class="max-w-6xl mx-auto px-6 py-16">
+
+{% block content %}{% endblock %}
+
+</main>
+
+
+<footer class="text-center text-sm text-gray-500 py-10">
+
+Built with Flask • AES Encryption • LSB Steganography
+
+</footer>
+
+</body>
 </html>

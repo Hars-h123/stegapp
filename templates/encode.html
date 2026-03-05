@@ -2,7 +2,7 @@
 
 <div class="max-w-3xl mx-auto w-full">
   <!-- Card Wrapper -->
-  <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-10">
+  <div class="glass-card p-6 sm:p-10">
     <!-- Back Link -->
     <div class="mb-6">
       <a
@@ -173,188 +173,172 @@
   </div>
 </div>
 
-
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
+    const sampleSection = document.getElementById("sample-images");
+    const uploadSection = document.getElementById("upload-section");
+    const radios = document.querySelectorAll("input[name='image_source']");
+    const form = document.getElementById("encode-form");
+    const overlay = document.getElementById("overlay");
+    const btn = document.getElementById("encode-btn");
 
-  const sampleSection = document.getElementById("sample-images");
-  const uploadSection = document.getElementById("upload-section");
-  const radios = document.querySelectorAll("input[name='image_source']");
-  const form = document.getElementById("encode-form");
-  const overlay = document.getElementById("overlay");
-  const btn = document.getElementById("encode-btn");
+    const dropArea = document.querySelector("#upload-section .border-dashed");
+    const fileInput = document.getElementById("imageInput");
 
-  const dropArea = document.querySelector("#upload-section .border-dashed");
-  const fileInput = document.getElementById("imageInput");
-
-  /* ------------------------------
+    /* ------------------------------
      Drag & Drop Handling
   ------------------------------ */
-  if (dropArea && fileInput) {
-
-    dropArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropArea.classList.add("bg-indigo-100");
-    });
-
-    dropArea.addEventListener("dragleave", () => {
-      dropArea.classList.remove("bg-indigo-100");
-    });
-
-    dropArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropArea.classList.remove("bg-indigo-100");
-      fileInput.files = e.dataTransfer.files;
-      showFileName(fileInput);
-    });
-  }
-
-  /* ------------------------------
-     Toggle Image Source
-  ------------------------------ */
-  radios.forEach((radio) => {
-    radio.addEventListener("change", function () {
-
-      sampleSection.classList.add("hidden");
-      uploadSection.classList.add("hidden");
-
-      if (this.value === "sample") {
-        sampleSection.classList.remove("hidden");
-      }
-
-      if (this.value === "upload") {
-        uploadSection.classList.remove("hidden");
-      }
-    });
-  });
-
-  /* ------------------------------
-     SAFE Submit Handler
-  ------------------------------ */
-  form.addEventListener("submit", async function (e) {
-
-    e.preventDefault();
-
-    overlay.classList.remove("hidden");
-    overlay.classList.add("flex");
-
-    btn.disabled = true;
-    btn.innerText = "Processing...";
-
-    try {
-
-      const response = await fetch(form.action, {
-        method: "POST",
-        body: new FormData(form),
+    if (dropArea && fileInput) {
+      dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("bg-indigo-100");
       });
 
-      /* If backend throws error */
-      if (!response.ok) {
+      dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("bg-indigo-100");
+      });
 
-        const errorText = await response.text();
-
-        overlay.classList.add("hidden");
-        overlay.classList.remove("flex");
-
-        alert("Server Error:\n\n" + errorText);
-
-        btn.disabled = false;
-        btn.innerText = "Encrypt & Download";
-        return;
-      }
-
-      /* If successful */
-      const blob = await response.blob();
-
-      const contentDisposition = response.headers.get("Content-Disposition");
-      let filename = "stego.png";
-
-      if (contentDisposition && contentDisposition.includes("filename=")) {
-        filename = contentDisposition.split("filename=")[1].replace(/"/g, "");
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      window.URL.revokeObjectURL(url);
-
-    } catch (error) {
-
-      alert("Unexpected error occurred. Please try again.");
-
+      dropArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("bg-indigo-100");
+        fileInput.files = e.dataTransfer.files;
+        showFileName(fileInput);
+      });
     }
 
-    overlay.classList.add("hidden");
-    overlay.classList.remove("flex");
+    /* ------------------------------
+     Toggle Image Source
+  ------------------------------ */
+    radios.forEach((radio) => {
+      radio.addEventListener("change", function () {
+        sampleSection.classList.add("hidden");
+        uploadSection.classList.add("hidden");
 
-    btn.disabled = false;
-    btn.innerText = "Encrypt & Download";
+        if (this.value === "sample") {
+          sampleSection.classList.remove("hidden");
+        }
 
+        if (this.value === "upload") {
+          uploadSection.classList.remove("hidden");
+        }
+      });
+    });
+
+    /* ------------------------------
+     SAFE Submit Handler
+  ------------------------------ */
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+
+      btn.disabled = true;
+      btn.innerText = "Processing...";
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+        });
+
+        /* If backend throws error */
+        if (!response.ok) {
+          const errorText = await response.text();
+
+          overlay.classList.add("hidden");
+          overlay.classList.remove("flex");
+
+          alert("Server Error:\n\n" + errorText);
+
+          btn.disabled = false;
+          btn.innerText = "Encrypt & Download";
+          return;
+        }
+
+        /* If successful */
+        const blob = await response.blob();
+
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = "stego.png";
+
+        if (contentDisposition && contentDisposition.includes("filename=")) {
+          filename = contentDisposition.split("filename=")[1].replace(/"/g, "");
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        alert("Unexpected error occurred. Please try again.");
+      }
+
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+
+      btn.disabled = false;
+      btn.innerText = "Encrypt & Download";
+    });
   });
 
-});
-
-/* ------------------------------
+  /* ------------------------------
    Helper Functions
 ------------------------------ */
 
-function showFileName(input) {
-  const fileName = input.files.length > 0 ? input.files[0].name : "";
-  document.getElementById("file-name").innerText =
-    fileName ? "Selected: " + fileName : "";
-}
-
-function togglePassword(id, btn) {
-  const input = document.getElementById(id);
-  if (input.type === "password") {
-    input.type = "text";
-    btn.textContent = "Hide";
-  } else {
-    input.type = "password";
-    btn.textContent = "Show";
+  function showFileName(input) {
+    const fileName = input.files.length > 0 ? input.files[0].name : "";
+    document.getElementById("file-name").innerText = fileName
+      ? "Selected: " + fileName
+      : "";
   }
-}
 
-function validatePassword(inputId) {
-
-  const input = document.getElementById(inputId);
-
-  input.addEventListener("input", function () {
-
-    const value = input.value;
-
-    updateRule("rule-length", value.length >= 8);
-    updateRule("rule-upper", /[A-Z]/.test(value));
-    updateRule("rule-lower", /[a-z]/.test(value));
-    updateRule("rule-number", /\d/.test(value));
-    updateRule("rule-special", /[^A-Za-z0-9]/.test(value));
-
-  });
-}
-
-function updateRule(id, isValid) {
-
-  const element = document.getElementById(id);
-  if (!element) return;
-
-  if (isValid) {
-    element.classList.remove("text-red-500");
-    element.classList.add("text-green-600");
-    element.innerHTML = element.innerHTML.replace("✗", "✓");
-  } else {
-    element.classList.remove("text-green-600");
-    element.classList.add("text-red-500");
-    element.innerHTML = element.innerHTML.replace("✓", "✗");
+  function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+      input.type = "text";
+      btn.textContent = "Hide";
+    } else {
+      input.type = "password";
+      btn.textContent = "Show";
+    }
   }
-}
 
-validatePassword("encode-password");
+  function validatePassword(inputId) {
+    const input = document.getElementById(inputId);
+
+    input.addEventListener("input", function () {
+      const value = input.value;
+
+      updateRule("rule-length", value.length >= 8);
+      updateRule("rule-upper", /[A-Z]/.test(value));
+      updateRule("rule-lower", /[a-z]/.test(value));
+      updateRule("rule-number", /\d/.test(value));
+      updateRule("rule-special", /[^A-Za-z0-9]/.test(value));
+    });
+  }
+
+  function updateRule(id, isValid) {
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    if (isValid) {
+      element.classList.remove("text-red-500");
+      element.classList.add("text-green-600");
+      element.innerHTML = element.innerHTML.replace("✗", "✓");
+    } else {
+      element.classList.remove("text-green-600");
+      element.classList.add("text-red-500");
+      element.innerHTML = element.innerHTML.replace("✓", "✗");
+    }
+  }
+
+  validatePassword("encode-password");
 </script>
-
 
 {% endblock %}
