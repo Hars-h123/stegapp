@@ -52,8 +52,15 @@
 
           <img
             src="{{ url_for('static', filename='sample_images/sample' ~ i ~ '.png') }}"
-            class="w-full h-36 object-cover rounded-xl border-2 border-transparent group-hover:scale-105 transition duration-300 peer-checked:border-indigo-500 shadow-md"
+            class="w-full h-36 object-cover rounded-xl border-2 border-transparent transition duration-300 group-hover:scale-105 peer-checked:scale-105 peer-checked:border-indigo-600 peer-checked:ring-4 peer-checked:ring-indigo-300 shadow-md"
           />
+
+          <!-- Checkmark Overlay -->
+          <div
+            class="absolute top-2 right-2 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs opacity-0 peer-checked:opacity-100 transition"
+          >
+            ✓
+          </div>
         </label>
         {% endfor %}
       </div>
