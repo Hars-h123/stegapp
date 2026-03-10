@@ -1,33 +1,34 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 import os
-import time
+import uuid
 from werkzeug.utils import secure_filename
+
 from utils.crypto_utils import encrypt_message, decrypt_message
 from utils.stego import encode_image, decode_image
 
 app = Flask(__name__)
 
-# ==============================
-# MAX IMAGE SIZE: 10MB
-# ==============================
-app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB limit
-
+# =============================
+# Folder setup
+# =============================
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
+# short link storage
+link_map = {}
 
-# ==============================
-# Helper: Validate File Extension
-# ==============================
+# =============================
+# Helper
+# =============================
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# ==============================
-# Routes
-# ==============================
+# =============================
+# Pages
+# =============================
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -43,9 +44,9 @@ def decode():
     return render_template("decode.html")
 
 
-# ==============================
-# Encode Action
-# ==============================
+# =============================
+# Encode action
+# =============================
 @app.route("/encode_action", methods=["POST"])
 def encode_action():
 
@@ -54,88 +55,128 @@ def encode_action():
     password = request.form.get("password")
 
     if not image_source or not message or not password:
-        return "Missing required fields", 400
+        return jsonify({"error": "Missing required fields"}), 400
 
-    encrypted_data = encrypt_message(message, password)
+    encrypted = encrypt_message(message, password)
 
-    # --------------------------------
-    # Handle Sample Image
-    # --------------------------------
+    # Sample image
     if image_source == "sample":
-        sample_name = request.form.get("sample_img")
-        if not sample_name:
-            return "No sample selected", 400
 
-        image_path = os.path.join("static", "sample_images", sample_name)
+        sample = request.form.get("sample_img")
 
-    # --------------------------------
-    # Handle Uploaded Image
-    # --------------------------------
+        if not sample:
+            return jsonify({"error": "No sample image selected"}), 400
+
+        image_path = os.path.join("static", "sample_images", sample)
+
+    # Uploaded image
     else:
-        file = request.files.get("image")
-        if not file or file.filename == "":
-            return "No file uploaded", 400
+
+        if "image" not in request.files:
+            return jsonify({"error": "No image uploaded"}), 400
+
+        file = request.files["image"]
+
+        if file.filename == "":
+            return jsonify({"error": "Empty filename"}), 400
 
         if not allowed_file(file.filename):
-            return "Only PNG, JPG, JPEG allowed.", 400
+            return jsonify({"error": "Invalid file type"}), 400
 
-        safe_name = secure_filename(file.filename)
-        image_path = os.path.join(UPLOAD_FOLDER, safe_name)
+        filename = secure_filename(file.filename)
+        image_path = os.path.join(UPLOAD_FOLDER, filename)
+
         file.save(image_path)
 
-    # --------------------------------
-    # Output File
-    # --------------------------------
-    timestamp = str(int(time.time()))
-    filename = f"stego_{timestamp}.png"
-    output_path = os.path.join(UPLOAD_FOLDER, filename)
+    # Generate encoded file
+    file_id = uuid.uuid4().hex
+    short_id = file_id[:6]
 
-    try:
-        encode_image(image_path, encrypted_data, output_path)
-    except Exception:
-        return "Encoding failed. Try a smaller image.", 400
+    output_filename = f"{file_id}.png"
+    output_path = os.path.join(UPLOAD_FOLDER, output_filename)
 
-    return send_file(
-        output_path,
-        as_attachment=True,
-        download_name=filename,
-        mimetype="image/png"
-    )
+    # Encode message into image
+    encode_image(image_path, encrypted, output_path)
+
+    # Save short link mapping
+    link_map[short_id] = output_filename
+
+    # Share URL
+    share_url = request.host_url + "s/" + short_id
+
+    return jsonify({
+        "share_url": share_url
+    })
 
 
-# ==============================
-# Decode Action
-# ==============================
+# =============================
+# Decode action (FIXED)
+# =============================
 @app.route("/decode_action", methods=["POST"])
 def decode_action():
 
-    file = request.files.get("image")
+    if "image" not in request.files:
+        return "No image uploaded", 400
+
     password = request.form.get("password")
 
-    if not file or not password:
-        return "Missing required fields", 400
+    if not password:
+        return "Password required", 400
 
-    if not allowed_file(file.filename):
-        return "Only PNG, JPG, JPEG allowed.", 400
+    file = request.files["image"]
 
-    safe_name = secure_filename(file.filename)
-    path = os.path.join(UPLOAD_FOLDER, safe_name)
+    if file.filename == "":
+        return "Empty filename", 400
+
+    filename = secure_filename(file.filename)
+    path = os.path.join(UPLOAD_FOLDER, filename)
+
     file.save(path)
 
     try:
         encrypted_data = decode_image(path)
         message = decrypt_message(encrypted_data, password)
         return message
+
     except Exception:
         return "ERROR: Wrong password or corrupted image.", 400
 
 
-# ==============================
-# Important for Local Only
-# Render will use Gunicorn
-# ==============================
-import os
+# =============================
+# Short share link
+# =============================
+@app.route("/s/<short_id>")
+def short_redirect(short_id):
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    filename = link_map.get(short_id)
+
+    if not filename:
+        return "Invalid or expired link", 404
+
+    return render_template("share.html", filename=filename)
+
+
+# =============================
+# Download encoded image
+# =============================
+@app.route("/download/<filename>")
+def download_file(filename):
+
+    path = os.path.join(UPLOAD_FOLDER, filename)
+
+    if not os.path.exists(path):
+        return "File not found", 404
+
+    return send_file(
+        path,
+        mimetype="image/png",
+        as_attachment=True,
+        download_name=filename
+    )
+
+
+# =============================
+# Run server
+# =============================
+if __name__ == "__main__":
+    app.run(port=10000, debug=True)
