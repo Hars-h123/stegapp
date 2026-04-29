@@ -10,47 +10,56 @@
 
 <script>
 tailwind.config = {
-theme:{
-extend:{
-fontFamily:{
-sans:['"Helvetica Neue"', "Helvetica","Arial","sans-serif"]
-}
-}
-}
+  darkMode: 'class',
+  theme:{
+    extend:{
+      fontFamily:{
+        sans:['"Helvetica Neue"', "Helvetica","Arial","sans-serif"]
+      }
+    }
+  }
 }
 </script>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<link rel="stylesheet"
-href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+<!-- Apply saved theme BEFORE render to avoid flash -->
+<script>
+  (function(){
+    try {
+      if (localStorage.getItem('steg-dark') === '1') {
+        document.documentElement.classList.add('dark');
+      }
+    } catch(e){}
+  })();
+</script>
 
 </head>
 
-<body class="min-h-screen text-gray-900">
+<body class="min-h-screen text-gray-900 dark:text-gray-100">
 
 <!-- NAVBAR -->
 <nav class="sticky top-0 backdrop-blur bg-white/60 border-b border-gray-200 z-50">
 
-<div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
 
-<a href="/" class="text-xl font-bold text-indigo-600">
-StegApp 🔐
-</a>
+    <a href="/" class="text-xl font-bold text-indigo-600">StegApp 🔐</a>
 
-<div class="flex gap-8 text-sm font-medium">
+    <div class="flex items-center gap-6 text-sm font-medium">
 
-<a href="/encode" class="hover:text-indigo-600">
-Encode
-</a>
+      <a href="/encode" class="hover:text-indigo-600 dark:hover:text-indigo-400">Encode</a>
+      <a href="/decode" class="hover:text-indigo-600 dark:hover:text-indigo-400">Decode</a>
 
-<a href="/decode" class="hover:text-indigo-600">
-Decode
-</a>
+      <!-- Dark mode toggle -->
+      <button id="dark-toggle" title="Toggle dark mode" onclick="toggleDark()">
+        <span id="dark-icon">🌙</span>
+      </button>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </nav>
 
@@ -62,11 +71,34 @@ Decode
 </main>
 
 
-<footer class="text-center text-sm text-gray-500 py-10">
-
-Built with Flask • AES Encryption • LSB Steganography
-
+<footer class="text-center text-sm py-10" style="color: var(--footer-text)">
+  Built with Flask • AES Encryption • LSB Steganography
 </footer>
+
+<script>
+  // ── Dark mode logic ────────────────────────────────────────────────────────
+  function applyDark(on) {
+    if (on) {
+      document.documentElement.classList.add('dark');
+      document.getElementById('dark-icon').textContent = '☀️';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.getElementById('dark-icon').textContent = '🌙';
+    }
+  }
+
+  function toggleDark() {
+    const isDark = document.documentElement.classList.contains('dark');
+    applyDark(!isDark);
+    try { localStorage.setItem('steg-dark', isDark ? '0' : '1'); } catch(e){}
+  }
+
+  // Sync icon on load
+  (function(){
+    const isDark = document.documentElement.classList.contains('dark');
+    document.getElementById('dark-icon').textContent = isDark ? '☀️' : '🌙';
+  })();
+</script>
 
 </body>
 </html>

@@ -1,24 +1,78 @@
 /* =========================
+   CSS Variables  (light defaults)
+========================= */
+
+:root {
+  --bg-grad-a:   #e0e7ff;
+  --bg-grad-b:   #f8fafc;
+  --bg-grad-c:   #ede9fe;
+  --bg-grad-d:   #e0e7ff;
+
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border:rgba(255, 255, 255, 0.25);
+  --glass-shadow:rgba(0, 0, 0, 0.08);
+  --glass-shadow-hover: rgba(0, 0, 0, 0.12);
+
+  --nav-bg:      rgba(255, 255, 255, 0.6);
+  --nav-border:  rgba(229, 231, 235, 1);
+
+  --text-base:     #1e293b; 
+  --text-muted:    #4b5563;
+  --input-bg:      #1e293b;
+  --input-border:  #d1d5db;
+  --input-text:    #111827;
+
+  --modal-bg:    #ffffff;
+  --overlay-bg:  rgba(255,255,255,0.70);
+
+  --footer-text: #6b7280;
+}
+
+/* Dark mode overrides */
+.dark {
+  --bg-grad-a:   #0f0f1a;
+  --bg-grad-b:   #12121f;
+  --bg-grad-c:   #1a1033;
+  --bg-grad-d:   #0d1526;
+
+  --glass-bg:    rgba(255, 255, 255, 0.06);
+  --glass-border:rgba(255, 255, 255, 0.10);
+  --glass-shadow:rgba(0, 0, 0, 0.35);
+  --glass-shadow-hover: rgba(0, 0, 0, 0.55);
+
+  --nav-bg:      rgba(15, 15, 26, 0.80);
+  --nav-border:  rgba(255,255,255,0.08);
+
+  --text-base:   #f1f5f9;
+  --text-muted:  #cbd5f5;
+  --input-bg:    rgba(255,255,255,0.07);
+  --input-border:rgba(255,255,255,0.15);
+  --input-text:  #f1f5f9;
+
+  --modal-bg:    #1e1e2e;
+  --overlay-bg:  rgba(0,0,0,0.60);
+
+  --footer-text: #475569;
+}
+
+/* =========================
    Animated Gradient Background
 ========================= */
 
 body {
-  background: linear-gradient(-45deg, #eef2ff, #ffffff, #ede9fe, #e0e7ff);
+  background: linear-gradient(-45deg,
+    var(--bg-grad-a), var(--bg-grad-b),
+    var(--bg-grad-c), var(--bg-grad-d));
   background-size: 400% 400%;
   animation: gradientMove 12s ease infinite;
-  transition: all 0.4s ease;
+  transition: background 0.4s ease, color 0.4s ease;
+  color: var(--text-base);
 }
 
 @keyframes gradientMove {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
 }
 
 /* =========================
@@ -27,21 +81,124 @@ body {
 
 .glass-card {
   backdrop-filter: blur(14px);
-  background: rgba(255, 255, 255, 0.65);
-
-  border: 1px solid rgba(255, 255, 255, 0.25);
-
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-
+  background:  var(--glass-bg);
+  border:      1px solid var(--glass-border);
+  box-shadow:  0 10px 30px var(--glass-shadow);
   border-radius: 18px;
-
   transition: 0.35s;
 }
 
 .glass-card:hover {
-  transform: translateY(-6px);
+  transform:  translateY(-6px);
+  box-shadow: 0 20px 40px var(--glass-shadow-hover);
+}
 
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+/* =========================
+   Navbar
+========================= */
+
+nav {
+  backdrop-filter: blur(14px);
+  background: var(--nav-bg) !important;
+  border-bottom-color: var(--nav-border) !important;
+}
+
+/* =========================
+   Inputs & Textareas
+========================= */
+
+input[type="text"],
+input[type="password"],
+input[type="file"],
+textarea,
+select {
+  background:   var(--input-bg)     !important;
+  border-color: var(--input-border) !important;
+  color:        var(--input-text)   !important;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+/* =========================
+   Readonly share-link input
+========================= */
+
+#share-link {
+  background:   var(--input-bg)     !important;
+  color:        var(--input-text)   !important;
+  border-color: var(--input-border) !important;
+}
+
+/* =========================
+   Modals / Overlays
+========================= */
+
+#result-modal > div,
+#processing-overlay > div,
+#overlay > div {
+  background: var(--modal-bg) !important;
+  color:      var(--text-base) !important;
+}
+
+#result-modal,
+#processing-overlay,
+#overlay {
+  background: var(--overlay-bg) !important;
+}
+
+/* =========================
+   Dark mode: misc text
+========================= */
+
+.dark .text-gray-600  { color: var(--text-muted) !important; }
+.dark .text-gray-500  { color: var(--text-muted) !important; }
+.dark .text-gray-400  { color: #64748b             !important; }
+.dark .text-gray-800  { color: var(--text-base)   !important; }
+.dark .text-gray-900  { color: var(--text-base)   !important; }
+.dark .bg-gray-100    { background: rgba(255,255,255,0.08) !important; }
+.dark .bg-gray-200    { background: rgba(255,255,255,0.12) !important; }
+.dark .bg-white       { background: var(--modal-bg) !important; }
+.dark .bg-green-50    { background: rgba(16,185,129,0.10) !important; }
+.dark .bg-red-50      { background: rgba(239,68,68,0.10)  !important; }
+.dark .bg-indigo-50   { background: rgba(99,102,241,0.10) !important; }
+.dark .bg-indigo-100  { background: rgba(99,102,241,0.15) !important; }
+.dark .border-gray-200{ border-color: rgba(255,255,255,0.10) !important; }
+
+/* Drop-zone in dark mode */
+.dark #secret-file-drop,
+.dark #drop-area {
+  border-color: rgba(129,140,248,0.5) !important;
+}
+.dark #secret-file-drop:hover,
+.dark #drop-area:hover {
+  background: rgba(99,102,241,0.12) !important;
+}
+
+/* =========================
+   Dark mode toggle button
+========================= */
+
+#dark-toggle {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 0.25s, transform 0.25s;
+  border: none;
+  background: transparent;
+}
+#dark-toggle:hover {
+  background: rgba(99,102,241,0.15);
+  transform: rotate(20deg) scale(1.1);
 }
 
 /* =========================
@@ -50,23 +207,16 @@ body {
 
 .main-btn {
   background: linear-gradient(135deg, #6366f1, #7c3aed);
-
   color: white;
-
   border-radius: 12px;
-
   padding: 14px 28px;
-
   font-weight: 600;
-
   transition: 0.3s;
-
   box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
 }
 
 .main-btn:hover {
   transform: translateY(-2px) scale(1.03);
-
   box-shadow: 0 18px 35px rgba(99, 102, 241, 0.35);
 }
 
@@ -87,21 +237,21 @@ body {
 }
 
 @keyframes encryptPulse {
-  0% {
-    opacity: 0.4;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0%   { opacity: 0.4; transform: scale(0.95); }
+  100% { opacity: 1;   transform: scale(1);    }
 }
 
 /* =========================
    Smooth Hover
 ========================= */
 
-a,
-button {
-  transition: all 0.25s ease;
+a, button { transition: all 0.25s ease; }
+
+
+h1 {
+  color: #0f172a !important;   /* light mode */
+}
+
+.dark h1 {
+  color: #f8fafc !important;   /* dark mode */
 }
